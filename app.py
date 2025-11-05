@@ -5,7 +5,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 import os
-from apscheduler.schedulers.background import BackgroundScheduler
+
+# Import scheduler only if not in serverless environment
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler
+    SCHEDULER_AVAILABLE = True
+except ImportError:
+    SCHEDULER_AVAILABLE = False
 
 app = Flask(__name__)
 
@@ -463,8 +469,8 @@ Task Tracker App
                 except Exception as e:
                     print(f"Failed to send daily summary: {e}")
 
-# Initialize scheduler only if not in serverless environment
-if not os.environ.get('VERCEL'):
+# Initialize scheduler only if available and not in serverless environment
+if SCHEDULER_AVAILABLE and not os.environ.get('VERCEL'):
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=check_and_send_reminders, trigger="interval", minutes=30)
     scheduler.add_job(func=send_daily_summary, trigger="cron", hour=7, minute=0)

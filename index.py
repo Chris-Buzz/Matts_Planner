@@ -1,6 +1,5 @@
 from app import app
 
-# This file exists for Vercel compatibility
-# Vercel looks for app.py, index.py, or api/index.py
-if __name__ == '__main__':
-    app.run()
+# Vercel serverless function handler
+# This is the entry point for Vercel
+app = app
