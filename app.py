@@ -470,11 +470,19 @@ if not os.environ.get('VERCEL'):
     scheduler.add_job(func=send_daily_summary, trigger="cron", hour=7, minute=0)
     scheduler.start()
 
-# Create database tables
-with app.app_context():
-    db.create_all()
+# Initialize database tables on first request
+@app.before_request
+def initialize_database():
+    if not hasattr(app, 'db_initialized'):
+        try:
+            db.create_all()
+            app.db_initialized = True
+        except Exception as e:
+            print(f"Database initialization error: {e}")
 
 # Vercel requires the app to be named 'app' or exported
 # This is the WSGI application Vercel will use
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=os.environ.get('FLASK_ENV') != 'production')
