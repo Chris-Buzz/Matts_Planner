@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Task Tracker{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-clock"></i>
+            <span>Task Tracker</span>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="nav-link active">
+                <i class="fas fa-calendar-alt"></i> Tasks
+            </a>
+            <a href="{{ url_for('shopping_list') }}" class="nav-link">
+                <i class="fas fa-shopping-cart"></i> Shopping List
+            </a>
+        </div>
+        <div class="nav-user">
+            <span>Welcome, {{ username }}!</span>
+            <div class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="dashboard-content">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="sidebar-section">
+                <h3><i class="fas fa-filter"></i> Views</h3>
+                <button class="sidebar-btn active" data-view="all">
+                    <i class="fas fa-list"></i> All Tasks
+                </button>
+                <button class="sidebar-btn" data-view="today">
+                    <i class="fas fa-calendar-day"></i> Today
+                </button>
+                <button class="sidebar-btn" data-view="week">
+                    <i class="fas fa-calendar-week"></i> This Week
+                </button>
+                <button class="sidebar-btn" data-view="pending">
+                    <i class="fas fa-clock"></i> Pending
+                </button>
+                <button class="sidebar-btn" data-view="completed">
+                    <i class="fas fa-check-circle"></i> Completed
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-tag"></i> Categories</h3>
+                <div class="category-filter">
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="work">Work</button>
+                    <button class="category-btn" data-category="personal">Personal</button>
+                    <button class="category-btn" data-category="fitness">Fitness</button>
+                    <button class="category-btn" data-category="shopping">Shopping</button>
+                    <button class="category-btn" data-category="other">Other</button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <i class="fas fa-tasks"></i>
+                    <div>
+                        <h3 id="totalTasks">0</h3>
+                        <p>Total Tasks</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-day"></i>
+                    <div>
+                        <h3 id="todayTasks">0</h3>
+                        <p>Today's Tasks</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3 id="completedTasks">0</h3>
+                        <p>Completed Today</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h3 id="pendingTasks">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h3>Today's Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">0% Complete</p>
+            </div>
+
+            <div class="content-header">
+                <h2 id="viewTitle">All Tasks</h2>
+                <div class="header-actions">
+                    <input type="text" id="searchInput" placeholder="Search tasks..." class="search-input">
+                    <button class="btn btn-primary" id="addTaskBtn">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+            </div>
+
+            <div class="tasks-container" id="tasksContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading tasks...
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal" id="taskModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add New Task</h2>
+            <button class="close-btn" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="taskForm">
+            <input type="hidden" id="taskId">
+            
+            <div class="form-group">
+                <label for="taskTitle">Task Title *</label>
+                <input type="text" id="taskTitle" required>
+            </div>
+
+            <div class="form-group">
+                <label for="taskDescription">Description</label>
+                <textarea id="taskDescription" rows="3"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskCategory">Category *</label>
+                    <select id="taskCategory" required>
+                        <option value="work">Work</option>
+                        <option value="personal" selected>Personal</option>
+                        <option value="fitness">Fitness</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskPriority">Priority *</label>
+                    <select id="taskPriority" required>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="taskDueDate">Due Date & Time *</label>
+                <input type="datetime-local" id="taskDueDate" required>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
